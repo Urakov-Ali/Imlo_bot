@@ -2,6 +2,8 @@ import logging
 from Checkwords import Checkword
 
 from aiogram import Bot, Dispatcher, executor, types
+from transliterate import to_cyrillic, to_latin
+
 
 API_TOKEN = '5154638483:AAHys16ENhbFB9eJwL7NBR2galY_GiGmQXU'
 
@@ -26,13 +28,15 @@ async def hel_menu(message: types.Message):
 @dp.message_handler()
 async def checkimlo(message: types.Message):
     words = message.text
-    result = Checkword(words)
-    if result['available']:
-        response = f"✅{words.capitalize()}"
-    else:
-        response = f"❌{words.capitalize()}\n"
-        for text in result['matches']:
-            response += f"✅{text.capitalize()}\n"
+    if words.isascii():
+        words = (to_cyrillic(words))
+        result = Checkword(words)
+        if result['available']:
+            response = f"✅{words.capitalize()}"
+        else:
+            response = f"❌{words.capitalize()}\n"
+            for text in result['matches']:
+                response += f"✅{text.capitalize()}\n"
     await message.reply(response)
 
 if __name__ == '__main__':
